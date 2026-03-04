@@ -8,7 +8,6 @@ const DATAFORSEO_API = 'https://api.dataforseo.com';
 const OPENAI_API     = 'https://api.openai.com/v1/chat/completions';
 
 exports.handler = async function(event) {
-  // ── CORS ──────────────────────────────────────────────────
   const headers = {
     'Access-Control-Allow-Origin':  '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -20,10 +19,17 @@ exports.handler = async function(event) {
   if (event.httpMethod !== 'POST')
     return { statusCode: 405, headers, body: JSON.stringify({ error: 'Método no permitido' }) };
 
-  // ── Variables de entorno ──────────────────────────────────
   const { DATAFORSEO_LOGIN, DATAFORSEO_PASSWORD, OPENAI_API_KEY } = process.env;
 
+  console.log('LOGIN existe:', !!DATAFORSEO_LOGIN);
+  console.log('PASSWORD existe:', !!DATAFORSEO_PASSWORD);
+  console.log('OPENAI existe:', !!OPENAI_API_KEY);
+
   if (!DATAFORSEO_LOGIN || !DATAFORSEO_PASSWORD)
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'Credenciales de DataForSEO no configuradas', login: !!DATAFORSEO_LOGIN, password: !!DATAFORSEO_PASSWORD }) };
+
+  if (!OPENAI_API_KEY)
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'API Key de OpenAI no configurada' }) };
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Credenciales de DataForSEO no configuradas' }) };
 
   if (!OPENAI_API_KEY)
