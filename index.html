@@ -284,7 +284,7 @@ footer{padding:3rem 4rem;border-top:1px solid var(--borde);display:flex;align-it
 </footer>
 
 <script>
-const API_ENDPOINT = '/api/keywords';
+const API_ENDPOINT = '/.netlify/functions/getKeywords';
 
 // ── Helpers de presentación ──────────────────────────────────────────────────
 function clasesDificultad(s){ return s<=30?'dif-baja':s<=60?'dif-media':'dif-alta' }
