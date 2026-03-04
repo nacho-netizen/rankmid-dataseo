@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RankMind — Investigación de Palabras Clave con IA</title>
+<meta name="description" content="Analiza palabras clave con datos reales de Google. Volumen de búsqueda, dificultad KD, CPC y análisis semántico con inteligencia artificial.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --tinta:#0f0e17;--papel:#fffcf5;--crema:#f5f0e8;
+  --oro:#c9a84c;--oro2:#e8c96a;--salvia:#4a7c6f;--oxido:#c4541a;
+  --atenuado:#7a7060;--borde:#e0d8c8;
+}
+html{scroll-behavior:smooth}
+body{background:var(--papel);color:var(--tinta);font-family:'Outfit',sans-serif;overflow-x:hidden}
+
+/* ── NAVEGACIÓN ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 4rem;background:rgba(255,252,245,0.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--borde)}
+.nav-logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.4rem;letter-spacing:-.5px}
+.nav-logo span{color:var(--oro)}
+.nav-enlaces{display:flex;gap:2.5rem}
+.nav-enlaces a{font-size:.82rem;font-weight:500;color:var(--atenuado);text-decoration:none;letter-spacing:.5px;text-transform:uppercase;transition:color .2s}
+.nav-enlaces a:hover{color:var(--tinta)}
+.nav-cta{background:var(--tinta);color:var(--papel);border:none;border-radius:6px;padding:.6rem 1.4rem;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;transition:background .2s}
+.nav-cta:hover{background:var(--oro);color:var(--tinta)}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:grid;place-items:center;padding:8rem 4rem 4rem;position:relative;overflow:hidden}
+.hero-fondo{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 80% 20%,rgba(201,168,76,.12) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 10% 80%,rgba(74,124,111,.08) 0%,transparent 50%)}
+.hero-cuadricula{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(var(--tinta) 1px,transparent 1px),linear-gradient(90deg,var(--tinta) 1px,transparent 1px);background-size:60px 60px}
+.hero-interior{max-width:900px;text-align:center;position:relative;animation:aparecer .9s ease both}
+@keyframes aparecer{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.hero-etiqueta{display:inline-flex;align-items:center;gap:.6rem;font-size:.72rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--oro);background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);padding:.4rem 1rem;border-radius:20px;margin-bottom:2rem}
+.hero-etiqueta::before{content:'◆';font-size:.5rem}
+h1{font-family:'Playfair Display',serif;font-size:clamp(3rem,7vw,5.5rem);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:1.5rem}
+h1 em{font-style:italic;color:var(--oro)}
+.hero-subtitulo{font-size:1.15rem;font-weight:300;color:var(--atenuado);max-width:580px;margin:0 auto 3rem;line-height:1.7}
+.hero-acciones{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-principal{background:var(--tinta);color:var(--papel);border:none;border-radius:8px;padding:1rem 2.5rem;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;letter-spacing:.5px;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-principal:hover{background:var(--oro);color:var(--tinta);transform:translateY(-2px)}
+.btn-secundario{background:transparent;color:var(--tinta);border:1.5px solid var(--borde);border-radius:8px;padding:1rem 2.5rem;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-secundario:hover{border-color:var(--tinta);transform:translateY(-2px)}
+.hero-estadisticas{display:flex;gap:3rem;justify-content:center;margin-top:4rem;padding-top:3rem;border-top:1px solid var(--borde);animation:aparecer .9s .3s ease both}
+.stat-num{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900}
+.stat-etiq{font-size:.75rem;color:var(--atenuado);text-transform:uppercase;letter-spacing:1px;margin-top:.2rem}
+
+/* ── CARACTERÍSTICAS ── */
+.caracteristicas{padding:7rem 4rem;background:var(--crema);border-top:1px solid var(--borde);border-bottom:1px solid var(--borde)}
+.seccion-etiq{font-size:.7rem;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--oro);margin-bottom:1rem}
+.seccion-titulo{font-family:'Playfair Display',serif;font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-1px;margin-bottom:1rem}
+.caract-cabecera{max-width:500px;margin-bottom:4rem}
+.caract-cabecera p{color:var(--atenuado);line-height:1.7}
+.caract-cuadricula{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1100px;margin:0 auto}
+.caract-tarjeta{background:var(--papel);border:1px solid var(--borde);border-radius:16px;padding:2rem;transition:transform .2s,box-shadow .2s}
+.caract-tarjeta:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(15,14,23,.08)}
+.caract-icono{width:48px;height:48px;border-radius:12px;background:var(--crema);border:1px solid var(--borde);display:grid;place-items:center;font-size:1.3rem;margin-bottom:1.2rem}
+.caract-tarjeta h3{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.6rem}
+.caract-tarjeta p{font-size:.85rem;color:var(--atenuado);line-height:1.6}
+
+/* ── HERRAMIENTA ── */
+.herramienta{padding:7rem 4rem;max-width:1200px;margin:0 auto}
+.herr-cabecera{text-align:center;margin-bottom:3rem}
+.herr-cabecera p{color:var(--atenuado);margin-top:.8rem}
+
+.busqueda-envoltorio{background:var(--crema);border:1px solid var(--borde);border-radius:20px;padding:2.5rem;margin-bottom:1.5rem}
+.busqueda-fila{display:flex;gap:1rem;margin-bottom:1.2rem}
+.busqueda-input{flex:1;background:var(--papel);border:1.5px solid var(--borde);border-radius:10px;padding:1rem 1.4rem;font-family:'Outfit',sans-serif;font-size:1rem;color:var(--tinta);outline:none;transition:border-color .2s}
+.busqueda-input:focus{border-color:var(--oro)}
+.busqueda-input::placeholder{color:var(--atenuado)}
+.busqueda-btn{background:var(--tinta);color:var(--papel);border:none;border-radius:10px;padding:1rem 2.2rem;font-family:'Outfit',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .2s}
+.busqueda-btn:hover{background:var(--oro);color:var(--tinta)}
+.busqueda-btn:disabled{opacity:.4;cursor:not-allowed}
+.filtros{display:flex;gap:.8rem;flex-wrap:wrap}
+.filtro-select{background:var(--papel);border:1px solid var(--borde);border-radius:8px;padding:.5rem 1rem;font-family:'Outfit',sans-serif;font-size:.8rem;color:var(--tinta);outline:none;cursor:pointer}
+.sugerencias{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.2rem}
+.sugerencia{padding:.35rem .9rem;border-radius:20px;font-size:.75rem;border:1px solid var(--borde);color:var(--atenuado);cursor:pointer;transition:all .15s;background:var(--papel)}
+.sugerencia:hover{border-color:var(--oro);color:var(--oro)}
+
+/* ── RESULTADOS ── */
+.rejilla-resultados{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.col-completa{grid-column:1/-1}
+.tarjeta{background:var(--papel);border:1px solid var(--borde);border-radius:16px;padding:1.8rem;position:relative;overflow:hidden;transition:box-shadow .2s}
+.tarjeta:hover{box-shadow:0 8px 30px rgba(15,14,23,.06)}
+.tarjeta-acento{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--oro),var(--oro2));opacity:0;transition:opacity .3s}
+.tarjeta:hover .tarjeta-acento{opacity:1}
+.tarjeta-etiq{font-size:.65rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--atenuado);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.tarjeta-etiq::before{content:'';width:16px;height:1px;background:var(--borde)}
+.metrica-grande{font-family:'Playfair Display',serif;font-size:2.5rem;font-weight:900;line-height:1}
+.metrica-pequena{font-size:.72rem;color:var(--atenuado);margin-top:.3rem}
+.barra-fondo{height:5px;background:var(--crema);border-radius:3px;margin-top:.4rem;overflow:hidden}
+.barra-relleno{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.etiq-dif{display:inline-block;font-size:.62rem;font-weight:600;padding:.2rem .55rem;border-radius:4px;letter-spacing:.5px;text-transform:uppercase}
+.dif-baja{background:rgba(74,124,111,.12);color:var(--salvia)}
+.dif-media{background:rgba(201,168,76,.15);color:#9a7a28}
+.dif-alta{background:rgba(196,84,26,.12);color:var(--oxido)}
+.int-info{background:rgba(74,124,111,.12);color:var(--salvia)}
+.int-trans{background:rgba(201,168,76,.15);color:#9a7a28}
+.int-com{background:rgba(196,84,26,.12);color:var(--oxido)}
+.int-nav{background:rgba(100,100,180,.12);color:#5050a0}
+.lista-pc{display:flex;flex-direction:column;gap:.4rem}
+.fila-pc{display:flex;align-items:center;gap:.8rem;padding:.6rem .8rem;border-radius:8px;transition:background .15s;cursor:pointer}
+.fila-pc:hover{background:var(--crema)}
+.nombre-pc{flex:1;font-size:.83rem}
+.vol-pc{font-size:.65rem;color:var(--atenuado)}
+.lista-preg{display:flex;flex-direction:column;gap:.5rem}
+.fila-preg{display:flex;gap:.8rem;align-items:flex-start;padding:.6rem 0;border-bottom:1px solid var(--borde);font-size:.83rem;line-height:1.4}
+.marca-preg{color:var(--oro);font-weight:700;flex-shrink:0;margin-top:1px}
+.fila-idea{padding:.7rem 0;border-bottom:1px solid var(--borde);font-size:.83rem;line-height:1.5;display:flex;gap:.8rem}
+.num-idea{color:var(--oro);font-weight:700;flex-shrink:0;font-family:'Playfair Display',serif}
+.prosa{font-size:.85rem;line-height:1.7;color:var(--atenuado)}
+.nube-etiq{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.8rem}
+.etiq{padding:.3rem .8rem;border-radius:20px;font-size:.75rem;background:var(--crema);border:1px solid var(--borde);color:var(--atenuado)}
+.pestanas{display:flex;gap:.3rem;margin-bottom:1rem;border-bottom:1px solid var(--borde);padding-bottom:.6rem;flex-wrap:wrap}
+.pestana{padding:.35rem .9rem;font-size:.72rem;border-radius:6px;cursor:pointer;color:var(--atenuado);border:none;background:none;font-family:'Outfit',sans-serif;font-weight:500;transition:all .15s}
+.pestana.activa{background:var(--tinta);color:var(--papel)}
+.divisor{border:none;border-top:1px solid var(--borde);margin:1rem 0}
+
+/* Estados */
+.esqueleto{background:linear-gradient(90deg,var(--crema) 25%,#ede8de 50%,var(--crema) 75%);background-size:200% 100%;animation:brillo 1.4s infinite;border-radius:6px}
+@keyframes brillo{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.girador{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,252,245,.3);border-top-color:var(--papel);border-radius:50%;animation:girar .7s linear infinite;vertical-align:middle;margin-right:.4rem}
+@keyframes girar{to{transform:rotate(360deg)}}
+.vacio{text-align:center;padding:4rem 2rem}
+.vacio-icono{font-size:3rem;opacity:.2;margin-bottom:1rem}
+.vacio-titulo{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--atenuado);margin-bottom:.5rem}
+.estado-error{background:var(--papel);border:1.5px solid rgba(196,84,26,.3);border-radius:16px;padding:2rem}
+.error-titulo{color:var(--oxido);font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.error-msg{font-size:.85rem;color:var(--atenuado);line-height:1.6;margin-bottom:.8rem}
+.error-codigo{font-size:.72rem;color:var(--atenuado);font-family:monospace;background:var(--crema);padding:.4rem .8rem;border-radius:6px}
+.insignia-potencial{display:inline-flex;align-items:center;gap:.4rem;font-size:.72rem;font-weight:600;padding:.3rem .8rem;border-radius:20px;margin-top:.5rem}
+.pot-alto{background:rgba(74,124,111,.15);color:var(--salvia)}
+.pot-medio{background:rgba(201,168,76,.15);color:#9a7a28}
+.pot-bajo{background:rgba(196,84,26,.12);color:var(--oxido)}
+
+/* ── CÓMO FUNCIONA ── */
+.como-funciona{padding:7rem 4rem;background:var(--tinta);color:var(--papel);text-align:center}
+.como-funciona .seccion-titulo{color:var(--papel);margin-bottom:.5rem}
+.como-funciona>p{color:rgba(255,252,245,.5);margin-bottom:4rem}
+.pasos{display:grid;grid-template-columns:repeat(3,1fr);gap:3rem;max-width:900px;margin:0 auto}
+.paso-num{font-family:'Playfair Display',serif;font-size:4rem;font-weight:900;color:var(--oro);opacity:.4;line-height:1;margin-bottom:.5rem}
+.paso h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.5rem}
+.paso p{font-size:.83rem;color:rgba(255,252,245,.5);line-height:1.6}
+
+/* ── PIE DE PÁGINA ── */
+pie{padding:3rem 4rem;border-top:1px solid var(--borde);display:flex;align-items:center;justify-content:space-between}
+.pie-logo{font-family:'Playfair Display',serif;font-weight:900;font-size:1.1rem}
+.pie-logo span{color:var(--oro)}
+footer p{font-size:.75rem;color:var(--atenuado)}
+footer{padding:3rem 4rem;border-top:1px solid var(--borde);display:flex;align-items:center;justify-content:space-between}
+
+/* Responsive */
+@media(max-width:768px){
+  nav{padding:1rem 1.5rem}.nav-enlaces{display:none}
+  .hero{padding:7rem 1.5rem 3rem}.hero-estadisticas{gap:1.5rem;flex-wrap:wrap}
+  .caracteristicas{padding:4rem 1.5rem}.caract-cuadricula{grid-template-columns:1fr}
+  .herramienta{padding:4rem 1.5rem}.rejilla-resultados{grid-template-columns:1fr}
+  .como-funciona{padding:4rem 1.5rem}.pasos{grid-template-columns:1fr;gap:2rem}
+  footer{padding:2rem 1.5rem;flex-direction:column;gap:1rem;text-align:center}
+  .busqueda-fila{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVEGACIÓN -->
+<nav>
+  <div class="nav-logo">Rank<span>Mind</span></div>
+  <div class="nav-enlaces">
+    <a href="#caracteristicas">Funcionalidades</a>
+    <a href="#herramienta">Herramienta</a>
+    <a href="#como-funciona">Cómo funciona</a>
+  </div>
+  <button class="nav-cta" onclick="document.getElementById('herramienta').scrollIntoView({behavior:'smooth'})">Probar gratis</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-fondo"></div>
+  <div class="hero-cuadricula"></div>
+  <div class="hero-interior">
+    <div class="hero-etiqueta">SEO Profesional · Datos Reales · Impulsado por IA</div>
+    <h1>Encuentra las palabras clave que <em>de verdad</em> importan</h1>
+    <p class="hero-subtitulo">Volumen de búsqueda real de Google, dificultad de posicionamiento, CPC y análisis semántico generado por inteligencia artificial. Todo en segundos.</p>
+    <div class="hero-acciones">
+      <button class="btn-principal" onclick="document.getElementById('herramienta').scrollIntoView({behavior:'smooth'})">Comenzar análisis →</button>
+      <a href="#caracteristicas" class="btn-secundario">Ver funcionalidades</a>
+    </div>
+    <div class="hero-estadisticas">
+      <div><div class="stat-num">Reales</div><div class="stat-etiq">Datos de Google</div></div>
+      <div><div class="stat-num">KD</div><div class="stat-etiq">Dificultad real</div></div>
+      <div><div class="stat-num">GPT-4o</div><div class="stat-etiq">Análisis semántico</div></div>
+      <div><div class="stat-num">ES</div><div class="stat-etiq">Mercado España</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CARACTERÍSTICAS -->
+<section class="caracteristicas" id="caracteristicas">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="caract-cabecera">
+      <div class="seccion-etiq">Funcionalidades</div>
+      <div class="seccion-titulo">Todo lo que necesitas para posicionarte</div>
+      <p>Datos reales de Google combinados con análisis semántico de inteligencia artificial para tomar decisiones SEO fundamentadas.</p>
+    </div>
+    <div class="caract-cuadricula">
+      <div class="caract-tarjeta"><div class="caract-icono">📊</div><h3>Volumen real de búsqueda</h3><p>Datos actualizados directamente de Google a través de DataForSEO. Volumen mensual, tendencias y estacionalidad para España.</p></div>
+      <div class="caract-tarjeta"><div class="caract-icono">🎯</div><h3>Dificultad KD real</h3><p>Score de dificultad de posicionamiento basado en el análisis real de las SERPs, no en estimaciones genéricas.</p></div>
+      <div class="caract-tarjeta"><div class="caract-icono">💶</div><h3>CPC y valor comercial</h3><p>Coste por clic medio en Google Ads para evaluar el valor comercial de cada palabra clave y priorizar las más rentables.</p></div>
+      <div class="caract-tarjeta"><div class="caract-icono">🧠</div><h3>Análisis semántico con IA</h3><p>GPT-4o analiza los datos y genera términos LSI específicos, intención de búsqueda y potencial de conversión real.</p></div>
+      <div class="caract-tarjeta"><div class="caract-icono">🔑</div><h3>Palabras clave relacionadas</h3><p>15+ variaciones long-tail y de cabeza con métricas reales para ampliar tu estrategia de contenidos y cobertura semántica.</p></div>
+      <div class="caract-tarjeta"><div class="caract-icono">🏆</div><h3>Estrategia SERP</h3><p>Análisis del panorama competitivo y recomendaciones concretas para diferenciarte y rankear en el mercado español.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- HERRAMIENTA -->
+<section class="herramienta" id="herramienta">
+  <div class="herr-cabecera">
+    <div class="seccion-etiq">Herramienta</div>
+    <div class="seccion-titulo">Analiza tu palabra clave ahora</div>
+    <p>Introduce una palabra clave semilla y obtén un análisis SEO completo con datos reales de Google</p>
+  </div>
+
+  <div class="busqueda-envoltorio">
+    <div class="busqueda-fila">
+      <input type="text" id="kwInput" class="busqueda-input" placeholder="Ej: marketing digital, zapatos sostenibles, recetas veganas..." />
+      <button class="busqueda-btn" id="searchBtn" onclick="ejecutarAnalisis()">Analizar</button>
+    </div>
+    <div class="filtros">
+      <select class="filtro-select" id="paisSelect">
+        <option value="2724" selected>🇪🇸 España</option>
+        <option value="2484">🇲🇽 México</option>
+        <option value="2032">🇦🇷 Argentina</option>
+        <option value="2170">🇨🇴 Colombia</option>
+        <option value="2152">🇨🇱 Chile</option>
+        <option value="2840">🇺🇸 Estados Unidos</option>
+      </select>
+      <select class="filtro-select" id="idiomaSelect">
+        <option value="es" selected>Español</option>
+        <option value="en">English</option>
+        <option value="pt">Português</option>
+      </select>
+    </div>
+    <div class="sugerencias">
+      <span style="font-size:.72rem;color:var(--atenuado);align-self:center">Probar con:</span>
+      <span class="sugerencia" onclick="buscarRapido('marketing digital')">marketing digital</span>
+      <span class="sugerencia" onclick="buscarRapido('ecommerce')">ecommerce</span>
+      <span class="sugerencia" onclick="buscarRapido('ropa sostenible')">ropa sostenible</span>
+      <span class="sugerencia" onclick="buscarRapido('cursos online')">cursos online</span>
+      <span class="sugerencia" onclick="buscarRapido('recetas veganas')">recetas veganas</span>
+      <span class="sugerencia" onclick="buscarRapido('emprendimiento digital')">emprendimiento digital</span>
+    </div>
+  </div>
+
+  <div id="areaResultados">
+    <div class="vacio">
+      <div class="vacio-icono">◆</div>
+      <div class="vacio-titulo">Tu análisis aparecerá aquí</div>
+      <p style="font-size:.82rem;color:var(--atenuado)">Introduce una palabra clave y haz clic en Analizar</p>
+    </div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="como-funciona" id="como-funciona">
+  <div class="seccion-etiq" style="color:var(--oro)">Proceso</div>
+  <div class="seccion-titulo">Tan sencillo como 1, 2, 3</div>
+  <p>Sin configuración, sin curva de aprendizaje</p>
+  <div class="pasos">
+    <div class="paso"><div class="paso-num">01</div><h3>Introduce tu palabra clave</h3><p>Escribe la palabra clave semilla de tu nicho o sector y selecciona el mercado objetivo.</p></div>
+    <div class="paso"><div class="paso-num">02</div><h3>La IA analiza todo</h3><p>Consultamos los datos reales de Google y GPT-4o genera el análisis semántico en segundos.</p></div>
+    <div class="paso"><div class="paso-num">03</div><h3>Aplica la estrategia</h3><p>Usa los datos para crear contenido que posicione, elegir las palabras clave correctas y superar a tu competencia.</p></div>
+  </div>
+</section>
+
+<!-- PIE DE PÁGINA -->
+<footer>
+  <div class="pie-logo">Rank<span>Mind</span></div>
+  <p>Investigación de palabras clave con datos reales e inteligencia artificial</p>
+  <p>© 2026 RankMind</p>
+</footer>
+
+<script>
+const API_ENDPOINT = '/api/keywords';
+
+// ── Helpers de presentación ──────────────────────────────────────────────────
+function clasesDificultad(s){ return s<=30?'dif-baja':s<=60?'dif-media':'dif-alta' }
+function etiquetaDificultad(s){ return s<=30?'Baja':s<=60?'Media':'Alta' }
+function clasesIntencion(i){ const m={informacional:'int-info',transaccional:'int-trans',comercial:'int-com',navegacional:'int-nav'}; return m[(i||'').toLowerCase()]||'int-info' }
+function iconoIntencion(i){ const m={informacional:'📖',transaccional:'🛒',comercial:'💡',navegacional:'🧭'}; return m[(i||'').toLowerCase()]||'🔍' }
+function colorDificultad(s){ return s<=30?'#4a7c6f':s<=60?'#c9a84c':'#c4541a' }
+function clasePotencial(p){ const m={alto:'pot-alto',medio:'pot-medio',bajo:'pot-bajo'}; return m[p]||'pot-medio' }
+function etiquetaPotencial(p){ const m={alto:'Conversión alta',medio:'Conversión media',bajo:'Conversión baja'}; return m[p]||'Conversión media' }
+
+function buscarRapido(kw){
+  document.getElementById('kwInput').value = kw;
+  document.getElementById('herramienta').scrollIntoView({behavior:'smooth'});
+  setTimeout(ejecutarAnalisis, 400);
+}
+
+// ── Estado: cargando ─────────────────────────────────────────────────────────
+function mostrarCargando(){
+  document.getElementById('areaResultados').innerHTML = `
+    <div class="rejilla-resultados">
+      ${[1,2,3,4].map(()=>`
+        <div class="tarjeta">
+          <div class="esqueleto" style="width:40%;height:10px;margin-bottom:1rem"></div>
+          <div class="esqueleto" style="width:70%;height:18px;margin-bottom:.6rem"></div>
+          <div class="esqueleto" style="width:90%;height:12px;margin-bottom:.4rem"></div>
+          <div class="esqueleto" style="width:55%;height:12px"></div>
+        </div>`).join('')}
+    </div>`;
+}
+
+// ── Estado: error ────────────────────────────────────────────────────────────
+function mostrarError(mensaje, detalle=''){
+  document.getElementById('areaResultados').innerHTML = `
+    <div class="estado-error">
+      <div class="error-titulo">⚠ Error al procesar el análisis</div>
+      <div class="error-msg">${mensaje}</div>
+      ${detalle ? `<div class="error-codigo">${detalle}</div>` : ''}
+    </div>`;
+}
+
+// ── Estado: datos ────────────────────────────────────────────────────────────
+function mostrarResultados(datos, keyword){
+  const kw        = datos.palabra_clave || {};
+  const diff      = kw.dificultad || 0;
+  const pot       = kw.potencial  || 0;
+
+  const filasPC = (datos.palabras_clave_relacionadas||[]).slice(0,15).map(r=>`
+    <div class="fila-pc" onclick="buscarRapido('${(r.keyword||'').replace(/'/g,"\\'")}')">
+      <span class="nombre-pc">${r.keyword}</span>
+      <span class="etiq-dif ${clasesDificultad(r.dificultad)}">${etiquetaDificultad(r.dificultad)}</span>
+      <span class="etiq-dif ${clasesIntencion(r.intencion)}">${iconoIntencion(r.intencion)} ${r.intencion||'Info'}</span>
+      <span class="vol-pc">${r.volumen||''}${r.cpc&&r.cpc!=='N/D'?' · '+r.cpc:''}</span>
+    </div>`).join('');
+
+  const filasPreg = (datos.preguntas||[]).slice(0,6).map(p=>`
+    <div class="fila-preg"><span class="marca-preg">?</span><span>${p}</span></div>`).join('');
+
+  const filasIdeas = (datos.ideas_contenido||[]).slice(0,5).map((c,i)=>`
+    <div class="fila-idea"><span class="num-idea">${String(i+1).padStart(2,'0')}</span><span>${c}</span></div>`).join('');
+
+  const filasComp = (datos.competidores||[]).slice(0,3).map(c=>`
+    <div style="display:flex;gap:.8rem;padding:.5rem 0;border-bottom:1px solid var(--borde);font-size:.82rem">
+      <span style="color:var(--oro);font-weight:700">→</span>
+      <span style="flex:1;font-weight:500">${c.tipo||''}</span>
+      <span style="color:var(--atenuado)">${c.descripcion||''}</span>
+    </div>`).join('');
+
+  document.getElementById('areaResultados').innerHTML = `
+    <div class="rejilla-resultados">
+
+      <!-- Palabra clave principal -->
+      <div class="tarjeta">
+        <div class="tarjeta-acento"></div>
+        <div class="tarjeta-etiq">Palabra clave principal</div>
+        <div class="metrica-grande">${keyword}</div>
+        <div class="metrica-pequena" style="margin-bottom:1.5rem">Análisis para ${document.getElementById('paisSelect').selectedOptions[0].text}</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1rem">
+          <div>
+            <div style="font-size:.65rem;color:var(--atenuado);text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Dificultad KD</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:${colorDificultad(diff)}">${diff}<span style="font-size:.9rem">/100</span></div>
+            <div class="barra-fondo"><div class="barra-relleno" style="width:${diff}%;background:${colorDificultad(diff)}"></div></div>
+          </div>
+          <div>
+            <div style="font-size:.65rem;color:var(--atenuado);text-transform:uppercase;letter-spacing:1px;margin-bottom:.3rem">Potencial</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--salvia)">${pot}<span style="font-size:.9rem">/10</span></div>
+            <div class="barra-fondo"><div class="barra-relleno" style="width:${pot*10}%;background:var(--salvia)"></div></div>
+          </div>
+        </div>
+
+        <hr class="divisor">
+        <div style="display:flex;flex-direction:column;gap:.4rem;font-size:.8rem">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--atenuado)">Volumen mensual</span><span style="font-weight:600">${kw.volumen||'N/D'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--atenuado)">CPC medio</span><span style="font-weight:600">${kw.cpc||'N/D'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--atenuado)">Competencia paid</span><span style="font-weight:600">${kw.competencia||'N/D'}</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--atenuado)">Formato ideal</span><span style="font-weight:600;text-align:right;max-width:55%">${kw.tipo_contenido||'–'}</span></div>
+        </div>
+        ${datos.potencial_conversion ? `<div class="insignia-potencial ${clasePotencial(datos.potencial_conversion)}">⚡ ${etiquetaPotencial(datos.potencial_conversion)}</div>` : ''}
+      </div>
+
+      <!-- Análisis semántico -->
+      <div class="tarjeta">
+        <div class="tarjeta-acento"></div>
+        <div class="tarjeta-etiq">Análisis semántico · GPT-4o</div>
+        <p class="prosa" style="margin-bottom:1.2rem">${datos.analisis_semantico||'Análisis no disponible.'}</p>
+        <hr class="divisor">
+        <div style="font-size:.65rem;color:var(--atenuado);text-transform:uppercase;letter-spacing:1px;margin-bottom:.6rem">Términos LSI identificados</div>
+        <div class="nube-etiq">${(datos.terminos_lsi||[]).map(t=>`<span class="etiq">${t}</span>`).join('')||'<span style="color:var(--atenuado);font-size:.8rem">No disponibles</span>'}</div>
+      </div>
+
+      <!-- Palabras clave relacionadas -->
+      <div class="tarjeta col-completa">
+        <div class="tarjeta-acento"></div>
+        <div class="tarjeta-etiq">Palabras clave relacionadas · ${(datos.palabras_clave_relacionadas||[]).length} resultados con datos reales</div>
+        <div class="pestanas">
+          <button class="pestana activa" onclick="filtrarPestana('todas',this)">Todas</button>
+          <button class="pestana" onclick="filtrarPestana('baja',this)">Dificultad baja</button>
+          <button class="pestana" onclick="filtrarPestana('informacional',this)">Informacionales</button>
+          <button class="pestana" onclick="filtrarPestana('transaccional',this)">Transaccionales</button>
+          <button class="pestana" onclick="filtrarPestana('comercial',this)">Comerciales</button>
+        </div>
+        <div class="lista-pc" id="listaPalabrasClave">${filasPC}</div>
+      </div>
+
+      <!-- Preguntas -->
+      <div class="tarjeta">
+        <div class="tarjeta-acento"></div>
+        <div class="tarjeta-etiq">Preguntas frecuentes de los usuarios</div>
+        <div class="lista-preg">${filasPreg}</div>
+      </div>
+
+      <!-- Ideas de contenido -->
+      <div class="tarjeta">
+        <div class="tarjeta-acento"></div>
+        <div class="tarjeta-etiq">Ideas de contenido</div>
+        <div>${filasIdeas}</div>
+      </div>
+
+      <!-- Análisis SERP -->
+      <div class="tarjeta col-completa">
+        <div class="tarjeta-acento"></div>
+        <div class="tarjeta-etiq">Análisis SERP y estrategia recomendada</div>
+        <p class="prosa" style="margin-bottom:1rem">${datos.analisis_serp||''}</p>
+        ${filasComp ? `<hr class="divisor"><div style="font-size:.65rem;color:var(--atenuado);text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem">Tipología de competidores</div>${filasComp}` : ''}
+      </div>
+
+    </div>`;
+
+  window._datosPC = datos.palabras_clave_relacionadas || [];
+}
+
+// ── Filtrado de pestañas ─────────────────────────────────────────────────────
+function filtrarPestana(tipo, el){
+  document.querySelectorAll('.pestana').forEach(p=>p.classList.remove('activa'));
+  el.classList.add('activa');
+  const pcs = window._datosPC || [];
+  let filtradas = pcs;
+  if(tipo==='baja')          filtradas = pcs.filter(k=>k.dificultad<=30);
+  if(tipo==='informacional') filtradas = pcs.filter(k=>(k.intencion||'').toLowerCase()==='informacional');
+  if(tipo==='transaccional') filtradas = pcs.filter(k=>(k.intencion||'').toLowerCase()==='transaccional');
+  if(tipo==='comercial')     filtradas = pcs.filter(k=>(k.intencion||'').toLowerCase()==='comercial');
+
+  document.getElementById('listaPalabrasClave').innerHTML = filtradas.slice(0,15).map(r=>`
+    <div class="fila-pc" onclick="buscarRapido('${(r.keyword||'').replace(/'/g,"\\'")}')">
+      <span class="nombre-pc">${r.keyword}</span>
+      <span class="etiq-dif ${clasesDificultad(r.dificultad)}">${etiquetaDificultad(r.dificultad)}</span>
+      <span class="etiq-dif ${clasesIntencion(r.intencion)}">${iconoIntencion(r.intencion)} ${r.intencion||'Info'}</span>
+      <span class="vol-pc">${r.volumen||''}${r.cpc&&r.cpc!=='N/D'?' · '+r.cpc:''}</span>
+    </div>`).join('') || '<div style="color:var(--atenuado);font-size:.82rem;padding:1rem">Sin resultados para este filtro.</div>';
+}
+
+// ── Llamada principal ────────────────────────────────────────────────────────
+async function ejecutarAnalisis(){
+  const keyword = document.getElementById('kwInput').value.trim();
+  if(!keyword) return;
+
+  const country_code  = document.getElementById('paisSelect').value;
+  const language_code = document.getElementById('idiomaSelect').value;
+  const btn = document.getElementById('searchBtn');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="girador"></span>Analizando...';
+  mostrarCargando();
+
+  try {
+    const respuesta = await fetch(API_ENDPOINT, {
+      method:  'POST',
+      headers: {'Content-Type':'application/json'},
+      body:    JSON.stringify({ keyword, country_code, language_code })
+    });
+
+    if(!respuesta.ok){
+      const err = await respuesta.json().catch(()=>({error:'Error del servidor'}));
+      throw new Error(err.error || `HTTP ${respuesta.status}`);
+    }
+
+    const datos = await respuesta.json();
+
+    if(datos.error) throw new Error(datos.error);
+
+    mostrarResultados(datos, keyword);
+
+  } catch(err){
+    mostrarError(
+      'No se pudo conectar con el servidor de análisis. Comprueba que las variables de entorno están configuradas correctamente en Netlify.',
+      err.message
+    );
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Analizar';
+  }
+}
+
+document.getElementById('kwInput').addEventListener('keydown', e => { if(e.key==='Enter') ejecutarAnalisis(); });
+</script>
+</body>
+</html>
